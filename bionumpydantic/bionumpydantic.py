@@ -3,7 +3,7 @@ import typing
 
 from pydantic import BaseModel
 from dataclasses import dataclass, field, make_dataclass
-from bionumpy.bnpdataclass import bnpdataclass
+from bionumpy.bnpdataclass import bnpdataclass, BNPDataClass
 from bionumpy.encoded_array import EncodedRaggedArray, RaggedArray
 import numpy as np
 
@@ -37,12 +37,9 @@ class BNPModel(BaseModel):
         return dict_annotations
 
     @classmethod
-    def to_dataclass(cls):
+    def to_dataclass(cls) -> type:
         annotations = cls.__annotations__
-        fields = [(name, f.annotation) for name, f in cls.__fields__.items()]
-        # fields = [(name, field.default if name in cls.__fields__ else field.default_factory) for name in
-        #          annotations]
-
+        fields = [(name, f.annotation) for name, f in cls.model_fields.items()]
         return make_dataclass(
             __class__.__name__,
             fields,
@@ -51,10 +48,14 @@ class BNPModel(BaseModel):
         )
 
     @classmethod
-    def to_bnpdataclass(cls):
+    def to_bnpdataclass(cls) -> type[BNPDataClass]:
         """
         Converts the Pydantic model to a bnpdataclass.
         """
         dc =  bnpdataclass(cls.to_dataclass())
         dc.__annotations__ = cls.convert_annotations()
         return dc
+
+    @classmethod
+    def to_pydantic_table_class(cls) -> type[BaseModel]:
+        raise NotImplementedError
