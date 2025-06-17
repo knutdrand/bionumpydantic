@@ -52,7 +52,7 @@ class BNPModel(BaseModel):
         """
         Converts the Pydantic model to a bnpdataclass.
         """
-        dc =  bnpdataclass(cls.to_dataclass())
+        dc = bnpdataclass(cls.to_dataclass())
         dc.__annotations__ = cls.convert_annotations()
         return dc
 
