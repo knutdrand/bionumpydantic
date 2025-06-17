@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 """Tests for `bionumpydantic` package."""
+import datetime
+import typing
 from typing import List
 
 import numpy as np
@@ -18,13 +20,15 @@ class Example(BNPModel):
     scores: List[float]
     years: List[int]
     friends: List[str]
+    date: datetime.datetime
 
-@pytest.mark.xfail(reason="Not yet implemented")
+# @pytest.mark.xfail(reason="Not yet implemented")
 def test_convert_annotations():
     new_annotations = Example.convert_annotations()
     assert new_annotations['name'] == EncodedRaggedArray
     assert new_annotations['age'] == np.ndarray
     assert new_annotations['scores'] == RaggedArray
+    assert new_annotations['date'] == typing.Any
 
 
 
