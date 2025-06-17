@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bionumpydantic"
+version = "0.0.1"
+description = "Wrappers for bionumpy of omnipy and pydantic"
+dynamic = ["readme"]
+authors = [
+    {name = "Knut Rand", email = "knutdrand@gmail.com"}
+]
+license = {text = "MIT license"}
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+keywords = ["bionumpydantic"]
+requires-python = ">=3.6"
+dependencies = [
+    "bionumpy",
+    "pydantic",
+]
+
+[project.urls]
+Homepage = "https://github.com/knutdrand/bionumpydantic"
+
+[project.scripts]
+bionumpydantic = "bionumpydantic.cli:main"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=3",
+    "hypothesis",
+]
+
+[tool.setuptools]
+packages = ["bionumpydantic", "bionumpydantic.*"]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.rst", "HISTORY.rst"], content-type = "text/x-rst"}
+
+[tool.setuptools.package-data]
+"*" = ["*.txt", "*.rst"]
+
+[tool.pytest]
+collect_ignore = ["setup.py"]
+
+[tool.flake8]
+exclude = ["docs"]
+
+[tool.bumpversion]
+current_version = "0.0.1"
+commit = true
+tag = true
+
+[[tool.bumpversion.files]]
+filename = "bionumpydantic/__init__.py"
+search = "__version__ = '{current_version}'"
+replace = "__version__ = '{new_version}'"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = "version = \"{current_version}\""
+replace = "version = \"{new_version}\""
+
+[tool.bdist_wheel]
+universal = 1

@@ -1,6 +1,7 @@
+from pydantic import BaseModel
 
+class OurModel(BaseModel):
+    name: str
+    scores: list[int]
 
-def test():
-    # this test will run when you run make test-all
-    # only test in files ending with _example.py in this directory will run
-    assert True
+#OurModel(name="test", scores=['1', '2.1', 3])

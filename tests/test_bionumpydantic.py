@@ -86,6 +86,7 @@ def test_numpy_array_in_pydantic():
     """Test that a numpy array can be wrapped in a Pydantic model."""
     arr = np.array([1.0, 2.0, 3.0])
     model = NumpyNdArrayExample(array=arr)
+
     assert isinstance(model.array, np.ndarray)
     assert np.array_equal(model.array, arr)
 
@@ -106,7 +107,7 @@ def test_bnp_ragged_encode_array_in_pydantic():
     assert isinstance(model.array, EncodedRaggedArray)
     assert_encoded_array_equal(model.array, encoded_arr)
 
-@pytest.mark.xfail(reason="Error converting dict of value to new model")
+#@pytest.mark.xfail(reason="Error converting dict of value to new model")
 def test_pydantic_bnp_table(init_dict):
     """Test the conversion of a Pydantic model to a pydantic bnpdataclass.
     name: EncodedRaggedArray
@@ -117,5 +118,8 @@ def test_pydantic_bnp_table(init_dict):
     """
     cls = Example.to_pydantic_table_class()
     assert issubclass(cls, BaseModel)
-    cls(**init_dict)
+    instance = cls(**init_dict)
+    print(instance)
+    assert len(instance.name) == 3
+
 

@@ -2,6 +2,7 @@ import typing
 
 import typing
 
+from bionumpy import as_encoded_array
 from pydantic import GetCoreSchemaHandler
 from pydantic_core import core_schema
 from bionumpy.encoded_array import EncodedRaggedArray, RaggedArray
@@ -21,9 +22,12 @@ class NumpyNdArray:
         """
         Add ndarray support to Pydantic.
         """
+        def validate_ndarray(value, info):
+            return np.asanyarray(value)
+
         return core_schema.json_or_python_schema(
             json_schema=core_schema.list_schema(),
-            python_schema=core_schema.is_instance_schema(np.ndarray),
+            python_schema=core_schema.with_info_plain_validator_function(validate_ndarray),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda instance: instance.tolist()
             )
@@ -48,7 +52,8 @@ class BnpRaggedArray:
         """
         return core_schema.json_or_python_schema(
             json_schema=core_schema.list_schema(),
-            python_schema=core_schema.is_instance_schema(RaggedArray),
+            #python_schema=core_schema.is_instance_schema(RaggedArray),
+            python_schema=core_schema.with_info_plain_validator_function(lambda value, info: RaggedArray(value)),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda instance: instance.tolist()
             )
@@ -72,7 +77,8 @@ class BnpEncodedRaggedArray:
         """
         return core_schema.json_or_python_schema(
             json_schema=core_schema.list_schema(),
-            python_schema=core_schema.is_instance_schema(EncodedRaggedArray),
+            #python_schema=core_schema.is_instance_schema(EncodedRaggedArray),
+            python_schema=core_schema.with_info_plain_validator_function(lambda value, info: as_encoded_array(value)),
             serialization=core_schema.plain_serializer_function_ser_schema(
                 lambda instance: instance.tolist()
             )
