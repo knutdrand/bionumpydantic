@@ -3,15 +3,12 @@ import typing
 
 from pydantic import BaseModel
 from dataclasses import dataclass, field, make_dataclass
-from bionumpy import bnpdataclass
-from sphinx.builders.html import return_codes_re
+from bionumpy.bnpdataclass import bnpdataclass
+from bionumpy.encoded_array import EncodedRaggedArray, RaggedArray
+import numpy as np
 
 
-def get_type_mapping_bnp() -> dict[type, type]:
-    from bionumpy.encoded_array import EncodedRaggedArray, RaggedArray
-    import numpy as np
-
-    return {
+TYPE_MAPPING = {
         int: np.ndarray,
         str: EncodedRaggedArray,
         float: np.ndarray,
@@ -31,11 +28,8 @@ class BNPModel(BaseModel):
         Converts the annotations of the Pydantic model to a dictionary.
         """
 
-        TYPE_MAPPING = get_type_mapping_bnp()
-
         dict_annotations = {}
-        for name, field in self.__fields__.items():
-            test = field.annotation
+        for name, field in self.model_fields.items():
             try:
                 dict_annotations[name] = TYPE_MAPPING[field.annotation]
             except KeyError:
@@ -61,5 +55,6 @@ class BNPModel(BaseModel):
         """
         Converts the Pydantic model to a bnpdataclass.
         """
-        from bionumpy.bnpdataclass import bnpdataclass
-        return bnpdataclass(cls.to_dataclass())
+        dc =  bnpdataclass(cls.to_dataclass())
+        dc.__annotations__ = cls.convert_annotations()
+        return dc
