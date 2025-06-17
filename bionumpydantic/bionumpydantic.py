@@ -1,29 +1,55 @@
 """Main module."""
 import typing
 
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 from dataclasses import dataclass, field, make_dataclass
 from bionumpy.bnpdataclass import bnpdataclass, BNPDataClass
 from bionumpy.encoded_array import EncodedRaggedArray, RaggedArray
 import numpy as np
 
+from bionumpydantic.pydantic_type_wrappers import NumpyNdArray, BnpEncodedRaggedArray, BnpRaggedArray
+
 
 TYPE_MAPPING = {
-        int: np.ndarray,
-        str: EncodedRaggedArray,
-        float: np.ndarray,
-        bool: np.ndarray,
-        typing.List[int]: RaggedArray,
-        typing.List[float]: RaggedArray,
-        typing.List[str]: EncodedRaggedArray,
-        typing.List[bool]: RaggedArray,
-    }
+    int: {
+        'wrapper_name': NumpyNdArray,
+        'name': np.ndarray,
+    },
+    str: {
+        'wrapper_name': BnpEncodedRaggedArray,
+        'name': EncodedRaggedArray,
+    },
+    float: {
+        'wrapper_name': NumpyNdArray,
+        'name': np.ndarray,
+    },
+    bool: {
+        'wrapper_name': NumpyNdArray,
+        'name': np.ndarray,
+    },
+    typing.List[int]: {
+        'wrapper_name': BnpRaggedArray,
+        'name': RaggedArray,
+    },
+    typing.List[float]: {
+        'wrapper_name': BnpRaggedArray,
+        'name': RaggedArray,
+    },
+    typing.List[str]: {
+        'wrapper_name': BnpEncodedRaggedArray,
+        'name': EncodedRaggedArray,
+    },
+    typing.List[bool]: {
+        'wrapper_name': BnpRaggedArray,
+        'name': RaggedArray,
+    },
+}
 
 
 class BNPModel(BaseModel):
 
     @classmethod
-    def convert_annotations(self) -> dict[str, type]:
+    def convert_annotations(self, wrapper_name = False) -> dict[str, type]:
         """
         Converts the annotations of the Pydantic model to a dictionary.
         """
@@ -31,7 +57,10 @@ class BNPModel(BaseModel):
         dict_annotations = {}
         for name, field in self.model_fields.items():
             try:
-                dict_annotations[name] = TYPE_MAPPING[field.annotation]
+                if wrapper_name:
+                    dict_annotations[name] = TYPE_MAPPING[field.annotation]['wrapper_name']
+                else:
+                    dict_annotations[name] = TYPE_MAPPING[field.annotation]['name']
             except KeyError:
                 dict_annotations[name] = typing.Any
         return dict_annotations
@@ -58,4 +87,7 @@ class BNPModel(BaseModel):
 
     @classmethod
     def to_pydantic_table_class(cls) -> type[BaseModel]:
-        raise NotImplementedError
+        dict_wrapper_name = cls.convert_annotations(wrapper_name = True)
+        PydanticModel = create_model(cls.__name__, **dict_wrapper_name, __base__ = BaseModel)
+        return PydanticModel
+

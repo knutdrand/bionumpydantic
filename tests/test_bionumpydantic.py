@@ -81,19 +81,6 @@ def test_pydantic_to_bnpdataclass(bnp_class, example_data):
     for name, annotation in bnp_class.__annotations__.items():
         assert true_annotations[name] == annotation, f"Annotation for {name} is {annotation}, expected {true_annotations[name]}"
 
-@pytest.mark.xfail(reason="Not yet implemented")
-def test_pydantic_bnp_table(init_dict):
-    """Test the conversion of a Pydantic model to a pydantic bnpdataclass.
-    name: EncodedRaggedArray
-    age: np.ndarray
-    scores: RaggedArray
-    years: RaggedArray
-    friends: EncodedRaggedArray
-    """
-    cls = Example.to_pydantic_table_class()
-    assert isinstance(cls, BaseModel)
-    cls(**init_dict)
-
 
 def test_numpy_array_in_pydantic():
     """Test that a numpy array can be wrapped in a Pydantic model."""
@@ -119,5 +106,16 @@ def test_bnp_ragged_encode_array_in_pydantic():
     assert isinstance(model.array, EncodedRaggedArray)
     assert_encoded_array_equal(model.array, encoded_arr)
 
-
+@pytest.mark.xfail(reason="Error converting dict of value to new model")
+def test_pydantic_bnp_table(init_dict):
+    """Test the conversion of a Pydantic model to a pydantic bnpdataclass.
+    name: EncodedRaggedArray
+    age: np.ndarray
+    scores: RaggedArray
+    years: RaggedArray
+    friends: EncodedRaggedArray
+    """
+    cls = Example.to_pydantic_table_class()
+    assert issubclass(cls, BaseModel)
+    cls(**init_dict)
 
