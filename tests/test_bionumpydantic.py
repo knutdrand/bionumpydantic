@@ -7,14 +7,14 @@ from typing import List
 
 import numpy as np
 import pytest
-from bionumpy import EncodedRaggedArray, as_encoded_array
-from bionumpy.util.testing import assert_bnpdataclass_equal, assert_encoded_array_equal
+from bionumpy import EncodedRaggedArray
+from bionumpy.util.testing import assert_encoded_array_equal
 from npstructures import RaggedArray
-from npstructures.testing import assert_raggedarray_equal
-from pydantic import BaseModel, ValidationError, TypeAdapter
+from pydantic import BaseModel
+from pydantic_ro_crates.crate.ro_crate import ROCrate
 
 from bionumpydantic.bionumpydantic import BNPModel
-from bionumpydantic.pydantic_type_wrappers import NumpyNdArray, BnpRaggedArray, BnpEncodedRaggedArray
+from bionumpydantic.pydantic_type_wrappers import BnpEncodedRaggedArray, NumpyNdArray, BnpRaggedArray
 
 d: int = 'hei'
 
@@ -28,6 +28,13 @@ class Example(BNPModel):
 class TypingExample(Example):
     date: datetime.datetime
 
+class PydanticBnp(BaseModel):
+    """Test class for ROCrate creation."""
+    name: BnpEncodedRaggedArray
+    age: NumpyNdArray
+    scores: BnpRaggedArray
+    years: BnpRaggedArray
+    friends: BnpEncodedRaggedArray
 
 # @pytest.mark.xfail(reason="Not yet implemented")
 def test_convert_annotations():
@@ -88,5 +95,15 @@ def test_pydantic_bnp_table(init_dict):
     instance = cls(**init_dict)
     print(instance)
     assert len(instance.name) == 3
+
+
+def test_ro_create_creation(init_dict):
+    """Test the creation of a ROCrate."""
+    instance = PydanticBnp(**init_dict)
+
+    roc = ROCrate()
+    roc += instance
+    assert isinstance(roc, ROCrate)
+    assert len(roc.graph[1].name) == 3
 
 
