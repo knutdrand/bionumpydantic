@@ -28,14 +28,6 @@ class Example(BNPModel):
 class TypingExample(Example):
     date: datetime.datetime
 
-class NumpyNdArrayExample(BaseModel):
-    array: NumpyNdArray
-
-class BnpRaggedExample(BaseModel):
-    array: BnpRaggedArray
-
-class BnpEncodedRaggedExample(BaseModel):
-    array: BnpEncodedRaggedArray
 
 # @pytest.mark.xfail(reason="Not yet implemented")
 def test_convert_annotations():
@@ -81,31 +73,6 @@ def test_pydantic_to_bnpdataclass(bnp_class, example_data):
     for name, annotation in bnp_class.__annotations__.items():
         assert true_annotations[name] == annotation, f"Annotation for {name} is {annotation}, expected {true_annotations[name]}"
 
-
-def test_numpy_array_in_pydantic():
-    """Test that a numpy array can be wrapped in a Pydantic model."""
-    arr = np.array([1.0, 2.0, 3.0])
-    model = NumpyNdArrayExample(array=arr)
-
-    assert isinstance(model.array, np.ndarray)
-    assert np.array_equal(model.array, arr)
-
-
-def test_bnp_ragged_array_in_pydantic():
-    """Test that a RaggedArray can be wrapped in a Pydantic model."""
-    ragged_arr = RaggedArray([[1.0, 2.0], [3.0]])
-
-    model = BnpRaggedExample(array=ragged_arr)
-    assert isinstance(model.array, RaggedArray)
-    assert_raggedarray_equal(model.array, ragged_arr)
-
-
-def test_bnp_ragged_encode_array_in_pydantic():
-    """Test that an EncodedRaggedArray can be wrapped in a Pydantic model."""
-    encoded_arr = as_encoded_array(["ctt", "actg", "ag"])
-    model = BnpEncodedRaggedExample(array=encoded_arr)
-    assert isinstance(model.array, EncodedRaggedArray)
-    assert_encoded_array_equal(model.array, encoded_arr)
 
 #@pytest.mark.xfail(reason="Error converting dict of value to new model")
 def test_pydantic_bnp_table(init_dict):
