@@ -96,6 +96,13 @@ def test_pydantic_bnp_table(init_dict):
     print(instance)
     assert len(instance.name) == 3
 
+@pytest.mark.xfail(reason="Not implemented")
+def test_json_serialization(init_dict):
+    cls = Example.to_pydantic_table_class()
+    instance = cls(**init_dict)
+    json_data = instance.model_dump_json()
+    assert json_data == init_dict
+
 
 def test_ro_create_creation(init_dict):
     """Test the creation of a ROCrate."""
@@ -105,5 +112,5 @@ def test_ro_create_creation(init_dict):
     roc += instance
     assert isinstance(roc, ROCrate)
     assert len(roc.graph[1].name) == 3
-
+    print(roc.json)
 
