@@ -81,7 +81,6 @@ def test_pydantic_to_bnpdataclass(bnp_class, example_data):
         assert true_annotations[name] == annotation, f"Annotation for {name} is {annotation}, expected {true_annotations[name]}"
 
 
-#@pytest.mark.xfail(reason="Error converting dict of value to new model")
 def test_pydantic_bnp_table(init_dict):
     """Test the conversion of a Pydantic model to a pydantic bnpdataclass.
     name: EncodedRaggedArray
@@ -96,11 +95,10 @@ def test_pydantic_bnp_table(init_dict):
     print(instance)
     assert len(instance.name) == 3
 
-@pytest.mark.xfail(reason="Not implemented")
 def test_json_serialization(init_dict):
     cls = Example.to_pydantic_table_class()
     instance = cls(**init_dict)
-    json_data = instance.model_dump_json()
+    json_data = instance.model_dump()
     assert json_data == init_dict
 
 

@@ -3,7 +3,8 @@ import typing
 import typing
 
 from bionumpy import as_encoded_array
-from pydantic import GetCoreSchemaHandler
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
 from pydantic_core import core_schema
 from bionumpy.encoded_array import EncodedRaggedArray, RaggedArray
 import numpy as np
@@ -59,6 +60,20 @@ class BnpRaggedArray:
             )
         )
 
+    @classmethod
+    def __get_pydantic_json_schema__(
+            cls,
+            core_schema: core_schema.CoreSchema,
+            handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
+        """
+        Add RaggedArray support to Pydantic JSON schema.
+        """
+        json_schema = handler(core_schema)
+        json_schema['type'] = 'array'
+        json_schema['items'] = {'type': 'array'}
+        return json_schema
+
 BnpRaggedArray = typing.Annotated[RaggedArray, BnpRaggedArray]
 
 class BnpEncodedRaggedArray:
@@ -83,5 +98,19 @@ class BnpEncodedRaggedArray:
                 lambda instance: instance.tolist()
             )
         )
+
+    @classmethod
+    def __get_pydantic_json_schema__(
+            cls,
+            core_schema: core_schema.CoreSchema,
+            handler: GetJsonSchemaHandler
+    ) -> JsonSchemaValue:
+        """
+        Add EncodedRaggedArray support to Pydantic JSON schema.
+        """
+        json_schema = handler(core_schema)
+        json_schema['type'] = 'array'
+        json_schema['items'] = {'type': 'string'}
+        return json_schema
 
 BnpEncodedRaggedArray = typing.Annotated[EncodedRaggedArray, BnpEncodedRaggedArray]
